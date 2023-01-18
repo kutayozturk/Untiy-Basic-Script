@@ -1,0 +1,86 @@
+	using System.Collections;
+	using System.Collections.Generic;
+	using UnityEngine;
+	 
+	public class Move : MonoBehaviour
+	{
+	    Rigidbody rb;
+	    public float speed;
+	    [SerializeField] private float sensivity;
+	    public int jumpForce;
+	 
+    // Start is called before the first frame update
+	    void Start()
+	    {
+        rb=GetComponent<Rigidbody>();
+        
+	    }
+ 
+	    // Update is called once per frame
+	    void Update()
+	    {
+	        transform.Translate(Input.GetAxis("Horizontal")*speed*Time.deltaTime, 0, Input.GetAxis("Vertical")*speed*Time.deltaTime);
+        transform.Rotate(0, Input.GetAxis("Mouse X")*sensivity*Time.deltaTime, 0);
+ 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+	            rb.AddForce(Vector3.up * jumpForce,ForceMode.Impulse);
+	        }
+	    }
+	 
+	    void OnCollisionEnter(Collision collision)
+    {
+	        //print("enter calisti..");
+	        if(collision.gameObject.tag=="collectable")
+	        {
+	            Destroy(collision.gameObject);
+	        }
+	        
+	    }
+   
+	    void OnCollisionStay(Collision collision)
+	    {
+        //print("Stay calisti..");
+        if (collision.gameObject.tag == "collectable")
+	        {
+	            Destroy(collision.gameObject);
+        }
+	 
+	    }
+	    void OnCollisionExit(Collision collision)
+	    {
+        //print("Exit calisti..");
+        if (collision.gameObject.tag == "collectable")
+	        {
+            Destroy(collision.gameObject);
+        }
+	 
+	    }
+    void OnTriggerEnter(Collider other)
+	    {
+        print("enter calisti..");
+	        if (other.gameObject.tag == "collectable")
+	        {
+	            //Destroy(other.gameObject);
+	        }
+	 
+	    }
+	    void OnTriggerStay(Collider other)
+	    {
+	        print("Stay calisti..");
+	        if (other.gameObject.tag == "collectable")
+	        {
+	            //Destroy(other.gameObject);
+	        }
+	 
+	    }
+	    void OnTriggerExit(Collider other)
+	    {
+        print("Exit calisti..");
+        if (other.gameObject.tag == "collectable")
+	        {
+	            //Destroy(other.gameObject);
+	        }
+	     }
+	  }
+	  

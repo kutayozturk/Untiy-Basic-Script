@@ -1,0 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Move : MonoBehaviour
+{
+    Rigidbody rb;
+    Animator _anim;
+    public GameObject character;
+    public float forward,side;
+    public float speed,sprint;
+    public float multiply;
+    [SerializeField] private float sensivity;
+    public int jumpForce;
+    public bool isSprint,isDead;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        _anim = character.GetComponent<Animator>();
+        rb=GetComponent<Rigidbody>();
+        sprint = speed;
+        isDead = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        side = Input.GetAxis("Horizontal");
+        forward = Input.GetAxis("Vertical");
+        isSprint = Input.GetKey(KeyCode.LeftShift);
+        if (isDead==false)
+        {
+            isMoving();
+        }
+    }
+    private void isMoving()
+    {
+        transform.Translate(side * speed * Time.deltaTime, 0, forward * speed * Time.deltaTime);
+        transform.Rotate(0, Input.GetAxis("Mouse X") * sensivity * Time.deltaTime, 0);
+        if (isSprint)
+        {
+            speed = multiply * sprint;
+        }
+        else
+        {
+            speed = sprint;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            _anim.SetBool("dead", true);
+            isDead = true;
+        }
+        _anim.SetFloat("ileri", forward);
+        _anim.SetBool("sprint", isSprint);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        //print("enter calisti..");
+        if(collision.gameObject.tag=="collectable")
+        {
+            Destroy(collision.gameObject);
+        }
+        
+    }
+    
+    void OnCollisionStay(Collision collision)
+    {
+        //print("Stay calisti..");
+        if (collision.gameObject.tag == "collectable")
+        {
+            Destroy(collision.gameObject);
+        }
+
+    }
+    void OnCollisionExit(Collision collision)
+    {
+        //print("Exit calisti..");
+        if (collision.gameObject.tag == "collectable")
+        {
+            Destroy(collision.gameObject);
+        }
+
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        print("enter calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+
+    }
+    void OnTriggerStay(Collider other)
+    {
+        print("Stay calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+
+    }
+    void OnTriggerExit(Collider other)
+    {
+        print("Exit calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+
+    }
+
+
+}

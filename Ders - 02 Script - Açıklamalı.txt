@@ -1,0 +1,176 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Move : MonoBehaviour
+{
+    Rigidbody rb; // rigitbody'e rb adında isim verdik
+    public float speed; // hız için float tanımladık ve
+                        //inspector ekranına gelmesi için public olarak ekledik
+
+    [SerializeField] private float sensivity; // SerializeField etiketi ile Unity'e özel olan bu alanı ekledik.
+        // Bu alan az önceki public'te olduğu gibi inspector kısmına menü eklenmesini sağlar. 
+        // Bunu kullanma nedenimiz, float'ın private (özel) olması.
+    public int jumpForce; // public (halka açık, herkesin erişimine açık demektir.)
+
+    // Start is called before the first frame update
+    void Start() // start fonksiyonunda yazılan kod(lar) oyun başladığında sadece 1 kere çalışırlar ve güncellenmezler.
+    { 
+        rb = GetComponent<Rigidbody>(); // rb ile adlandırmış olduğumuz rigidbody'imizi GetComponent syntax'ı ile çağırdık.
+                                        // syntax: İlgili programlama dilinin kendine ait olan kelimeleridir. Söz Dizimi olarak da bilinir.
+
+    }
+
+    // Update is called once per frame
+    void Update() // Program başladıktan sonra, ilgili komutlar çalışırlar ve güncellenebilirler.
+    {
+        transform.Translate(Input.GetAxis("Horizontal") * speed * Time.deltaTime, 0, Input.GetAxis("Vertical") * speed * Time.deltaTime);
+        transform.Rotate(0, Input.GetAxis("Mouse X") * sensivity * Time.deltaTime, 0);
+
+        /*
+                                    
+                                            SAĞ SOL HAREKET ETTİRME            
+
+         transfrom kullanma nedenimiz, ilgili asset'in konumu üzerinden ilerleme yolunu seçtiğimiz için.
+         o zaman transform ile traslate işini yani konum değiştirme işini birbirine bağlıyoruz. Bu bağlama işlemi "." ile yapılır.
+         Sonra parantez içerisinde Input işlemleri gerçekleştirilir. Paranteze alma nedenimiz karakterimize argüman girmek içindir.
+         argüman: ilgili işlem için gerekli olan değerlerdir.
+         O zaman Input içeriseini .GetAxis ile  yapacağımız işlem türünü ÇA-ĞI-RI-YO-RUZ!.
+         Peki kimi çağırıyoruz: "Horizontal"
+
+         şimdi, Yölendirekbilmek için karaktermizin bir ilk kuvveti olmadığından, harici bir güce ihtiyaç duyar. (itmek veya çekmek gibi)
+         Bu gücü biz daha önce yukarıda speed olarak zaten tanımlamışdık.
+         O zaman ben, karakterimi harekete geçirmek için hareket yönü ile hareket ettirecek bu kuvvet değerlerini çarpmam gerekir.
+         Time.deltaTime: Delta Time zamana bağlı değişim demektir. Bizede o zaman deltaTime komutu ile zamana bağlı olarak gücümüzün
+         ARTIŞ MİKTARINI ayarlayacağız.
+
+         Tüm bu bilgiler ışığında speed ve Time.deltaTime ilede çarpılır. Sonuç olarak "Horizontal" yönde kuvvete bağlı bir hareket meydana gelir.
+         3 boyutlu eksende haraket yönleri sırasıyla X, Y ve Z olduğundan yazacağımız komutlar bütünüde bu sıraya uymalıdır.
+         Yani biz Input.GetAxis("Horizontal") * speed * Time.deltaTime komutu ile sadece X eksenine haraket vermiş olduk.
+        
+         Şimdi Y ekseni için bakalım. Y ekseni (yukarı-aşağı) için bir haraket gerçekleştirmeyeceğimiz için 0 değerini verdik
+         ve Z için komutlara başladık.
+
+         Şimdi Z ekseni için komutumuzu yazalım.
+
+            Input.GetAxis("Vertical") * speed * Time.deltaTime
+
+            X kordinatı için yadığımız komutun aynısıdır ancak "Horizontal" yerine "Vertical" kullanmamız gerekir.
+
+
+
+                                        FARE HAREKETİ
+
+        transform.Rotate(0, Input.GetAxis("Mouse X") * sensivity * Time.deltaTime, 0);
+        
+        Fare hareketi bir dönüş gerçekleştireceği için, burada Rotare kullandık.
+        input olarak FARE'nin X kordinatından hareket etmesini istediğimiz için "Mouse X" kullandık.
+        sensivity değeri ile çarptık. Bu değer FARE'mizin genel hareket hızıdır.
+
+        */
+
+
+        if (Input.GetKeyDown(KeyCode.Space))
+
+            //Eğer GetKeyDown (Anahtar Tuş Aşağıda (Tuşa basıldı yani)) KeyCode.space (Boşluk Tuşunu belirttir.)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+            // rb (rigitbody'e AddForce ile bir kuvvet uygulayacağız. Bu kuvvet vektöreldir çünkü koordinat sistemine bağlı olarak çalışır.)
+            // .up ile ilgili kuvvetin yukarı yönlü olacağını belirtiyoruz.
+            // *jumpForce ile'de kuvveti bir kat sayı ile çarpıp daha da kuvvetli hale getiriyoruz.
+
+            // ForceMode.Impulse komutu ile unity'de objeye ilk ÇARPMA kuvvetini başlatıyoruz.
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+
+    // OnCollisionEnter hazır bir unity fonksiyondur. Bu fonksiyon obejenin temas durumunu inceler. Bu temas durumu
+    // Temasın başladığı an, Temasın devam ediyor oluşu ve Temasın sonlanması durumlarının tümünü kapsar.
+    // Collision kelime anlamı çarpışma demektir.
+
+    {
+        //print("enter calisti..");
+        if (collision.gameObject.tag == "collectable")
+        {
+            // EĞER gameObject ile "collectable" tag'ına sahip olan obje çarpıştı mı?
+            // Cevap EVET ise
+            // Destrol et. Yani Puff..... :)
+
+            Destroy(collision.gameObject);
+        }
+       
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        //print("Stay calisti..");
+        if (collision.gameObject.tag == "collectable")
+        {
+            Destroy(collision.gameObject);
+        }
+
+    }
+    void OnCollisionExit(Collision collision)
+    {
+        //print("Exit calisti..");
+        if (collision.gameObject.tag == "collectable")
+        {
+            Destroy(collision.gameObject);
+        }
+
+    }
+
+
+
+    /* Trigger Kavramı
+     
+    Normalde bir nesnenin çarpışmayı algılaması için Collider'a ihtiyacı vardır.
+    Ancak collider üzerinden çarpışma gerçekletirildiği taktirde, bir nesne collider içeren diğer bir nesneye
+    çarptığında fizik yasalarında olduğu gibi etki-tepki olur bu sebeple çarpılan nesne, çarpan nesneyi durdurur.
+    Örneğin zıplayıp para toplayan bir oyun düşünelim. Karakter zıplayım parayı topladığında olduğu yerde kalırsa,
+    fizik yasaları gereği karakter zemine düşer. Ancak biz bunu istemiyoruz, zıplama işlevinin devam etmesini istiyoruz.
+    Bu sebeple toplanacak objenin isncpector alanında yer alan collider kısmından "is Trigger" seçeneği aktif edilir.
+
+
+    */
+
+
+    /* NOT: Aslında Collision kavramı ile trigger kavramı neredeyse birbirinin aynısıdır.
+    Aralarındaki fark ise, Collision durumunda nesneler arası temas (çarpışma) birbirine tepki uygular.
+    Bu tepki çarpan cismi durdurabilir veya yavaşlatabilir.
+    
+    Ancak Trigger durumda, çarpılan cisim, çarpan cisime herhangi bir tepki göstermez bu sebeple çarpan
+    cisim önünde engel yokmuşcasına yoluna devam eder.
+      
+    */
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        print("enter calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+
+    }
+    void OnTriggerStay(Collider other)
+    {
+        print("Stay calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+
+    }
+    void OnTriggerExit(Collider other)
+    {
+        print("Exit calisti..");
+        if (other.gameObject.tag == "collectable")
+        {
+            //Destroy(other.gameObject);
+        }
+    }
+}
